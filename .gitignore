@@ -1,0 +1,23 @@
+# Python artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# Local cache & User data
+recursos/data/app_names_cache.json
+
+# Temporary download files
+*.zip
+recursos/adb.zip
+
+# Windows system files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Logs & temporary reports
+*.log
+recursos/assets/uidump.xml
+recursos/assets/com.miui.powerkeeper.txt
+recursos/assets/pantalla_actual.png
