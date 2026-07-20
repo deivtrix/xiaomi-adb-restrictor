@@ -172,6 +172,7 @@ class App:
         self.search_var = tk.StringVar()
         self.search_var.trace_add("write", self._filter_apps)
         self.executor = ThreadPoolExecutor(max_workers=5)
+        self.last_known_status = None
 
         self._build_ui()
         # Verificar y descargar ADB si falta en segundo plano para no congelar la UI
@@ -752,14 +753,30 @@ class App:
 
     def _update_status_loop(self):
         status = self._get_device_status()
-        if status == "conectado":
-            self._set_status_text("CONECTADO", "#059669")
-            if not self.apps:
-                self._refresh()
-        elif status == "no_autorizado":
-            self._set_status_text("NO AUTORIZADO - Acepta en tu celular", "#D97706")
-        else:
-            self._set_status_text("DESCONECTADO - Conecta por USB", "#DC2626")
+        
+        if status != self.last_known_status:
+            self.last_known_status = status
+            if status == "conectado":
+                self._set_status_text("CONECTADO", "#059669")
+                self._log("==================================================")
+                self._log("✔ ¡DISPOSITIVO CONECTADO Y AUTORIZADO!")
+                self._log("==================================================")
+                if not self.apps:
+                    self._refresh()
+            elif status == "no_autorizado":
+                self._set_status_text("NO AUTORIZADO - Acepta en tu celular", "#D97706")
+                self._log("\n⚠️ [DISPOSITIVO NO AUTORIZADO]")
+                self._log("👉 Revisa la pantalla de tu celular y marca 'Aceptar' / 'Permitir siempre' en el mensaje de depuracion USB.\n")
+            else:
+                self._set_status_text("DESCONECTADO - Conecta por USB", "#DC2626")
+                self._log("\n❌ [DISPOSITIVO DESCONECTADO]")
+                self._log("👉 Para conectar tu Xiaomi, sigue estos pasos:")
+                self._log("   1. Ve a Ajustes > Sobre el telefono > Toca 7 veces 'Version MIUI' (o Version de OS).")
+                self._log("   2. Ve a Ajustes adicionales > Opciones de desarrollador.")
+                self._log("   3. ACTIVA 'Depuracion USB'.")
+                self._log("   4. ACTIVA 'Depuracion USB (Ajustes de seguridad)' (Obligatorio para simular toques).")
+                self._log("   5. Conecta el cable USB al PC.\n")
+                
         self.root.after(3000, self._update_status_loop)
 
     def _select_all(self):
